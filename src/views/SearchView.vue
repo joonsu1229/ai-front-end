@@ -54,7 +54,7 @@
 
       <!-- Search Options -->
       <div class="flex flex-wrap gap-4 items-center mb-4">
-        <n-radio-group v-model:value="searchType" size="small">
+        <n-radio-group v-model:value="searchType" size="large">
           <n-radio-button value="hybrid">하이브리드</n-radio-button>
           <n-radio-button value="keyword">키워드</n-radio-button>
           <n-radio-button value="advanced">고급</n-radio-button>
