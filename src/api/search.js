@@ -11,11 +11,20 @@ export const searchAPI = {
   },
 
   // 키워드 검색
-  async keywordSearch(query, category = '', limit = 10) {
+  async lexicalSearch(query, category = '', limit = 10) {
     const params = { query, limit }
     if (category) params.category = category
 
-    const response = await apiClient.get('/search/keyword', { params })
+    const response = await apiClient.get('/search/lexical', { params })
+    return response.data
+  },
+
+    // 의미 검색
+  async semanticSearch(query, category = '', limit = 10) {
+    const params = { query, limit }
+    if (category) params.category = category
+
+    const response = await apiClient.get('/search/semantic', { params })
     return response.data
   },
 

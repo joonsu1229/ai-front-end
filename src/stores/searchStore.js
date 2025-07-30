@@ -59,9 +59,12 @@ export const useSearchStore = defineStore('search', () => {
         case 'hybrid':
           results = await searchAPI.hybridSearch(query, selectedCategory.value, searchOptions.value.limit)
           break
-        case 'keyword':
-          results = await searchAPI.keywordSearch(query, selectedCategory.value, searchOptions.value.limit)
+        case 'lexical':
+          results = await searchAPI.lexicalSearch(query, selectedCategory.value, searchOptions.value.limit)
           break
+        case 'semantic':
+          results = await searchAPI.semanticSearch(query, selectedCategory.value, searchOptions.value.limit)
+          break          
         case 'advanced':
           results = await searchAPI.advancedSearch(
             query, 
