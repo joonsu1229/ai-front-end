@@ -446,9 +446,9 @@ const getSearchTypeCount = (type) => {
 }
 
 const getSearchTypePercentage = (type) => {
-  const total = searchStore.searchHistory.length
-  if (total === 0) return 0
-  return ((getSearchTypeCount(type) / total) * 100).toFixed(1)
+  // const total = searchStore.searchHistory.length
+  // if (total === 0) return 0
+  // return ((getSearchTypeCount(type) / total) * 100).toFixed(1)
 }
 
 const getSearchTypeLabel = (type) => {
