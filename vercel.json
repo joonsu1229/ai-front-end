@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "http://aiback.secretroom.kro.kr:5130/api/$1"
+      "destination": "http://aiback.secretroom.kro.kr/api/$1"
     }
   ]
 }
