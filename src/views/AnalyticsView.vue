@@ -196,13 +196,21 @@
               </p>
               <p class="text-xs text-blue-700">전체의 {{ getSearchTypePercentage('hybrid') }}%</p>
             </div>
+
+            <div class="bg-green-50 rounded-lg p-4">
+              <h3 class="text-sm font-semibold text-green-900 mb-2">의미 검색</h3>
+              <p class="text-2xl font-bold text-green-600">
+                {{ getSearchTypeCount('semantic') }}
+              </p>
+              <p class="text-xs text-green-700">전체의 {{ getSearchTypePercentage('semantic') }}%</p>
+            </div>            
             
             <div class="bg-green-50 rounded-lg p-4">
               <h3 class="text-sm font-semibold text-green-900 mb-2">키워드 검색</h3>
               <p class="text-2xl font-bold text-green-600">
-                {{ getSearchTypeCount('keyword') }}
+                {{ getSearchTypeCount('lexical') }}
               </p>
-              <p class="text-xs text-green-700">전체의 {{ getSearchTypePercentage('keyword') }}%</p>
+              <p class="text-xs text-green-700">전체의 {{ getSearchTypePercentage('lexical') }}%</p>
             </div>
             
             <div class="bg-yellow-50 rounded-lg p-4">
@@ -210,7 +218,7 @@
               <p class="text-2xl font-bold text-yellow-600">
                 {{ getSearchTypeCount('advanced') + getSearchTypeCount('boolean') }}
               </p>
-              <p class="text-xs text-yellow-700">전체의 {{ (getSearchTypePercentage('advanced') + getSearchTypePercentage('boolean')).toFixed(1) }}%</p>
+              <p class="text-xs text-yellow-700">전체의 {{ (getSearchTypePercentage('advanced') + getSearchTypePercentage('boolean')) }}%</p>
             </div>
           </div>
 
@@ -446,18 +454,18 @@ const getSearchTypeCount = (type) => {
 }
 
 const getSearchTypePercentage = (type) => {
-  // const total = searchStore.searchHistory.length
-  // if (total === 0) return 0
-  // return ((getSearchTypeCount(type) / total) * 100).toFixed(1)
+  const total = searchStore.searchHistory.length
+  if (total === 0) return 0
+  return ((getSearchTypeCount(type) / total) * 100).toFixed(1)
 }
 
 const getSearchTypeLabel = (type) => {
   const labels = {
-    'hybrid': '하이브리드',
-    'keyword': '키워드',
+    'hybrid': 'Hybrid',
+    'lexical': 'Lexical',
+    'semantic': 'Semantic',
     'advanced': '고급',
-    'boolean': 'Boolean',
-    'category': '카테고리'
+    'boolean': 'Boolean'
   }
   return labels[type] || type
 }
@@ -465,10 +473,11 @@ const getSearchTypeLabel = (type) => {
 const getSearchTypeColor = (type) => {
   const colors = {
     'hybrid': 'primary',
-    'keyword': 'info',
+    'lexical': 'info',
+    'semantic': 'info',
     'advanced': 'success',
     'boolean': 'warning',
-    'category': 'default'
+    'category': 'default',
   }
   return colors[type] || 'default'
 }
@@ -504,6 +513,7 @@ const formatRelativeTime = (timestamp) => {
 
 // Lifecycle
 onMounted(() => {
+  console.log('onMounted 실행됨') // 이것부터 확인
   refreshData()
 })
 </script>
