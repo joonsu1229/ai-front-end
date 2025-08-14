@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import SearchView from '@/views/SearchView.vue'
 import DocumentView from '@/views/DocumentView.vue'
 import AnalyticsView from '@/views/AnalyticsView.vue'
+import JobManagement from '@/views/JobManagement.vue'
 
 const routes = [
   {
@@ -30,7 +31,16 @@ const routes = [
       title: '분석',
       icon: 'analytics'
     }
-  }
+  },
+  {
+    path: '/jobManagement',
+    name: 'JobManagement',
+    component: JobManagement,
+    meta: { 
+      title: '채용정보 관리',
+      icon: 'document'
+    }
+  },  
 ]
 
 const router = createRouter({
