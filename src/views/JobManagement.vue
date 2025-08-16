@@ -315,15 +315,30 @@
     <!-- Jobs Table -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
       <div class="px-4 py-5 sm:p-6">
+        <!-- Data Table -->
         <n-data-table
           :columns="columns"
           :data="filteredJobs"
           :loading="isLoading"
-          :pagination="paginationConfig"
           :row-key="(row) => row.id"
           size="medium"
           striped
+          :pagination="false"
         />
+        <!-- Pagination -->
+        <div class="mt-4 flex justify-end">
+          <n-pagination
+            v-model:page="pagination.page"
+            :page-count="pagination.pageCount"
+            :page-size="pagination.pageSize"
+            :item-count="pagination.total"
+            show-size-picker
+            :page-sizes="[10, 20, 50, 100]"
+            show-quick-jumper
+            @update:page="handlePageChange"
+            @update:page-size="handlePageSizeChange"
+          />
+        </div>
       </div>
     </div>
 
@@ -625,6 +640,8 @@ const {
   stats,
   crawlStatus,
   lastUpdate,
+  pagination,
+  totalPages,
 
   // Loading states
   isLoading,
@@ -658,7 +675,7 @@ const {
   // Computed
   getCategoryCount,
   getExperienceCount,
-  getLocationCount
+  getLocationCount,
 } = storeToRefs(jobStore)
 
 // 로컬 반응형 상태들 - 확실한 기본값으로 초기화
@@ -682,6 +699,8 @@ const {
   fetchStats,
   fetchCrawlStatus,
   refreshAll,
+  handlePageChange,
+  handlePageSizeChange,
 
   // Search and filter
   performSearch,
@@ -821,13 +840,17 @@ const columns = [
 ]
 
 // 페이지네이션 설정
-const paginationConfig = {
-  pageSize: 10,
+const paginationConfig = computed(() => ({
+  page: pagination.value.page,
+  pageSize: pagination.value.pageSize,
+  total: pagination.value.total,
   showSizePicker: true,
   pageSizes: [10, 20, 50],
   showQuickJumper: true,
-  prefix: ({ itemCount }) => `총 ${itemCount}개`
-}
+  prefix: ({ itemCount }) => `총 ${pagination.value.total}개`,
+  onChange: handlePageChange,
+  onUpdatePageSize: handlePageSizeChange
+}))
 
 // 이벤트 핸들러들
 const handleSearch = async () => {

@@ -154,29 +154,51 @@ export const useJobManagementStore = defineStore('jobManagement', () => {
     ).length
   })
 
-  // Actions - Data Fetching
-  const fetchJobs = async () => {
-    loading.value = true
-    error.value = null
-
-    try {
-      const params = {
-        search: searchQuery.value,
-        category: filterCategory.value,
-        location: filterLocation.value,
-        source: filterSource.value
-      }
-
-      const response = await jobsAPI.getJobs(params)
-      jobPostings.value = response.content || response
-      pagination.value.total = response.totalElements
-    } catch (err) {
-      error.value = err.message || '채용공고를 불러오는 중 오류가 발생했습니다'
-      jobPostings.value = []
-    } finally {
-      loading.value = false
-    }
+  const setPagination = (page, pageSize) => {
+    pagination.value.page = page
+    pagination.value.pageSize = pageSize
   }
+
+  // Actions - Data Fetching
+// Actions - Data Fetching
+const fetchJobs = async () => {
+  loading.value = true
+  error.value = null
+
+  try {
+    const params = {
+      page: pagination.value.page - 1, // Spring Boot는 0부터 시작
+      size: pagination.value.pageSize,
+      search: searchQuery.value,
+      category: filterCategory.value,
+      location: filterLocation.value,
+      source: filterSource.value
+    }
+
+    const response = await jobsAPI.getJobs(params)
+    jobPostings.value = response.content || response
+    pagination.value.total = response.totalElements
+    pagination.value.pageSize = response.size
+    pagination.value.pageCount = response.totalPages
+
+  } catch (err) {
+    error.value = err.message || '채용공고를 불러오는 중 오류가 발생했습니다'
+    jobPostings.value = []
+  } finally {
+    loading.value = false
+  }
+}
+// 페이지네이션 이벤트 핸들러 추가
+const handlePageChange = (page) => {
+  pagination.value.page = page
+  fetchJobs()
+}
+
+const handlePageSizeChange = (pageSize) => {
+  pagination.value.page = 1 // 페이지 크기 변경시 첫 페이지로
+  pagination.value.pageSize = pageSize
+  fetchJobs()
+}
 
   const fetchStats = async () => {
     try {
@@ -562,6 +584,8 @@ export const useJobManagementStore = defineStore('jobManagement', () => {
     showAddModal,
     selectedJob,
     formData,
+    pagination,
+    totalPages,
 
     // Options
     categoryOptions,
@@ -579,12 +603,16 @@ export const useJobManagementStore = defineStore('jobManagement', () => {
     getCategoryCount,
     getExperienceCount,
     getLocationCount,
+    totalPages,
 
     // Actions - Data Fetching
+    handlePageChange,
+    handlePageSizeChange,
     fetchJobs,
     fetchStats,
     fetchCrawlStatus,
     refreshAll,
+    setPagination,
 
     // Actions - Crawling
     getSupportedSites,
