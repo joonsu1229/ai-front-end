@@ -5,17 +5,17 @@ export const jobsAPI = {
   // Get jobs with filtering and pagination
   async getJobs(params = {}) {
     const searchParams = new URLSearchParams()
-    
+
     if (params.search) searchParams.append('search', params.search)
     if (params.category) searchParams.append('category', params.category)
     if (params.location) searchParams.append('location', params.location)
     if (params.source) searchParams.append('source', params.source)
     if (params.page) searchParams.append('page', params.page)
     if (params.size) searchParams.append('size', params.size)
-    
+
     const queryString = searchParams.toString()
     const url = queryString ? `/jobs?${queryString}` : '/jobs'
-    
+
     const response = await apiClient.get(url)
     return response.data
   },
@@ -78,7 +78,7 @@ export const jobsAPI = {
 
   // AI-powered semantic search
   async aiSearch(params) {
-    const response = await apiClient.post('/jobs/search/similar', params)
+    const response = await apiClient.post('/jobs/search/hybrid', params)
     return response.data
   },
 

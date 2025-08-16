@@ -97,7 +97,7 @@
           </n-button>
         </div>
       </div>
-      
+
       <!-- AI Search -->
       <div class="mt-4 pt-4 border-t border-gray-200">
         <n-input
@@ -112,7 +112,9 @@
           </template>
           <template #suffix>
             <n-button text @click="handleAISearch" :loading="aiSearchLoading">
-              AI 검색
+            <n-icon>
+              <SearchOutline />
+            </n-icon>
             </n-button>
           </template>
         </n-input>
@@ -132,7 +134,7 @@
           </n-icon>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-1">
@@ -144,7 +146,7 @@
           </n-icon>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-1">
@@ -156,7 +158,7 @@
           </n-icon>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-1">
@@ -202,7 +204,7 @@
             </template>
           </n-button>
         </template>
-        
+
         <div v-if="selectedJob" class="space-y-6">
           <!-- Job Header -->
           <div class="border-b pb-4">
@@ -233,29 +235,29 @@
                 <h4 class="font-semibold text-gray-900 mb-2">경력</h4>
                 <p class="text-gray-700">{{ selectedJob.experienceLevel }}</p>
               </div>
-              
+
               <div v-if="selectedJob.employmentType">
                 <h4 class="font-semibold text-gray-900 mb-2">고용형태</h4>
                 <p class="text-gray-700">{{ selectedJob.employmentType }}</p>
               </div>
-              
+
               <div v-if="selectedJob.jobCategory">
                 <h4 class="font-semibold text-gray-900 mb-2">직무분야</h4>
                 <p class="text-gray-700">{{ selectedJob.jobCategory }}</p>
               </div>
             </div>
-            
+
             <div class="space-y-4">
               <div>
                 <h4 class="font-semibold text-gray-900 mb-2">등록일</h4>
                 <p class="text-gray-700">{{ formatDate(selectedJob.createdAt) }}</p>
               </div>
-              
+
               <div v-if="selectedJob.deadline">
                 <h4 class="font-semibold text-gray-900 mb-2">마감일</h4>
                 <p class="text-gray-700">{{ formatDate(selectedJob.deadline) }}</p>
               </div>
-              
+
               <div v-if="selectedJob.sourceUrl">
                 <h4 class="font-semibold text-gray-900 mb-2">원본 링크</h4>
                 <n-button tag="a" :href="selectedJob.sourceUrl" target="_blank" text type="primary">
@@ -298,7 +300,7 @@
             </div>
           </div>
         </div>
-        
+
         <template #footer>
           <div class="flex justify-end gap-2">
             <n-button @click="closeDetailModal">닫기</n-button>
@@ -327,7 +329,7 @@
             </template>
           </n-button>
         </template>
-        
+
         <n-form
           ref="formRef"
           :model="formData"
@@ -344,7 +346,7 @@
                 show-count
               />
             </n-form-item>
-            
+
             <n-form-item label="회사명" path="company">
               <n-input
                 v-model:value="formData.company"
@@ -352,14 +354,14 @@
                 :maxlength="200"
               />
             </n-form-item>
-            
+
             <n-form-item label="지역" path="location">
               <n-input
                 v-model:value="formData.location"
                 placeholder="근무 지역을 입력하세요"
               />
             </n-form-item>
-            
+
             <n-form-item label="직무분야" path="jobCategory">
               <n-select
                 v-model:value="formData.jobCategory"
@@ -367,7 +369,7 @@
                 placeholder="직무분야를 선택하세요"
               />
             </n-form-item>
-            
+
             <n-form-item label="경력" path="experienceLevel">
               <n-select
                 v-model:value="formData.experienceLevel"
@@ -375,7 +377,7 @@
                 placeholder="경력을 선택하세요"
               />
             </n-form-item>
-            
+
             <n-form-item label="고용형태" path="employmentType">
               <n-select
                 v-model:value="formData.employmentType"
@@ -384,14 +386,14 @@
               />
             </n-form-item>
           </div>
-          
+
           <n-form-item label="연봉/급여" path="salary">
             <n-input
               v-model:value="formData.salary"
               placeholder="연봉이나 급여 정보를 입력하세요"
             />
           </n-form-item>
-          
+
           <n-form-item label="채용내용" path="description">
             <n-input
               v-model:value="formData.description"
@@ -402,7 +404,7 @@
               show-count
             />
           </n-form-item>
-          
+
           <n-form-item label="자격요건" path="requirements">
             <n-input
               v-model:value="formData.requirements"
@@ -413,7 +415,7 @@
               show-count
             />
           </n-form-item>
-          
+
           <n-form-item label="복리혜택" path="benefits">
             <n-input
               v-model:value="formData.benefits"
@@ -424,7 +426,7 @@
               show-count
             />
           </n-form-item>
-          
+
           <n-form-item label="원본 URL" path="sourceUrl">
             <n-input
               v-model:value="formData.sourceUrl"
@@ -432,7 +434,7 @@
             />
           </n-form-item>
         </n-form>
-        
+
         <template #footer>
           <div class="flex justify-end gap-2">
             <n-button @click="closeAddModal">취소</n-button>
@@ -453,7 +455,7 @@
 <script setup>
 import { ref, computed, onMounted, watch, h } from 'vue'
 import { useMessage, NButton, NIcon, NTag, NEllipsis } from 'naive-ui'
-import { 
+import {
   AddOutline,
   SearchOutline,
   RefreshOutline,
@@ -483,7 +485,7 @@ const {
   stats,
   crawlStatus,
   lastUpdate,
-  
+
   // Loading states
   isLoading,
   crawlingLoading,
@@ -491,20 +493,20 @@ const {
   addLoading,
   hasError,
   error,
-  
+
   // Search and filters
   searchQuery,
   aiSearchQuery,
   filterCategory,
   filterLocation,
   filterSource,
-  
+
   // Modal states
   showDetailModal,
   showAddModal,
   selectedJob,
   formData,
-  
+
   // Options
   categoryOptions,
   locationOptions,
@@ -512,7 +514,7 @@ const {
   jobCategoryOptions,
   experienceOptions,
   employmentOptions,
-  
+
   // Computed
   getCategoryCount,
   getExperienceCount,
@@ -526,26 +528,26 @@ const {
   fetchStats,
   fetchCrawlStatus,
   refreshAll,
-  
+
   // Search and filter
   performSearch,
   performAISearch,
   applyFilters,
   clearFilters,
-  
+
   // CRUD operations
   createJob,
   deleteJob,
-  
+
   // Crawling
   startCrawling,
-  
+
   // Modal management
   openDetailModal,
   closeDetailModal,
   openAddModal,
   closeAddModal,
-  
+
   // Utility
   getSourceColor,
   formatDate,
@@ -678,7 +680,7 @@ const handleRefresh = async () => {
 
 const handleAISearch = async () => {
   if (!aiSearchQuery.value.trim()) return
-  
+
   try {
     const result = await performAISearch()
     if (result.success) {
@@ -720,7 +722,7 @@ const handleDeleteJob = async (job) => {
 const handleSubmit = async () => {
   try {
     await formRef.value?.validate()
-    
+
     const result = await createJob(formData.value)
     if (result.success) {
       message.success(result.message)
