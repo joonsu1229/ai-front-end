@@ -154,9 +154,9 @@ export const useDocumentStore = defineStore('document', () => {
 
   const searchDocuments = (query) => {
     if (!query) return documents.value
-    
+
     const lowercaseQuery = query.toLowerCase()
-    return documents.value.filter(doc => 
+    return documents.value.filter(doc =>
       doc.title.toLowerCase().includes(lowercaseQuery) ||
       doc.content.toLowerCase().includes(lowercaseQuery)
     )
@@ -169,13 +169,13 @@ export const useDocumentStore = defineStore('document', () => {
     error,
     currentDocument,
     pagination,
-    
+
     // Computed
     hasDocuments,
     isLoading,
     hasError,
     totalPages,
-    
+
     // Actions
     fetchDocuments,
     getDocument,
@@ -185,7 +185,7 @@ export const useDocumentStore = defineStore('document', () => {
     clearError,
     clearCurrentDocument,
     setPagination,
-    
+
     // Helper functions
     formatDate,
     getCategoryLabel,

@@ -66,7 +66,7 @@
           </n-icon>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-1">
@@ -78,7 +78,7 @@
           </n-icon>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-1">
@@ -90,7 +90,7 @@
           </n-icon>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-1">
@@ -136,7 +136,7 @@
             </template>
           </n-button>
         </template>
-        
+
         <n-form
           ref="formRef"
           :model="formData"
@@ -152,7 +152,7 @@
               show-count
             />
           </n-form-item>
-          
+
           <n-form-item label="카테고리" path="category">
             <n-select
               v-model:value="formData.category"
@@ -160,7 +160,7 @@
               placeholder="카테고리를 선택하세요"
             />
           </n-form-item>
-          
+
           <n-form-item label="내용" path="content">
             <n-input
               v-model:value="formData.content"
@@ -172,7 +172,7 @@
             />
           </n-form-item>
         </n-form>
-        
+
         <template #footer>
           <div class="flex justify-end gap-2">
             <n-button @click="closeModal">취소</n-button>
@@ -205,7 +205,7 @@
             이 작업은 되돌릴 수 없습니다.
           </n-text>
         </n-space>
-        
+
         <template #footer>
           <div class="flex justify-end gap-2">
             <n-button @click="showDeleteModal = false">취소</n-button>
@@ -238,7 +238,7 @@
             </template>
           </n-button>
         </template>
-        
+
         <div v-if="previewDocument" class="space-y-4">
           <div>
             <h2 class="text-xl font-bold mb-2">{{ previewDocument.title }}</h2>
@@ -252,16 +252,16 @@
               <span>ID: {{ previewDocument.id }}</span>
             </div>
           </div>
-          
+
           <n-divider />
-          
+
           <div class="prose max-w-none">
             <div class="whitespace-pre-wrap text-gray-700 leading-relaxed">
               {{ previewDocument.content }}
             </div>
           </div>
         </div>
-        
+
         <template #footer>
           <div class="flex justify-end gap-2">
             <n-button @click="editDocument(previewDocument)">
@@ -287,7 +287,7 @@
 import { ref, computed, onMounted, h } from 'vue'
 import { useMessage, NButton, NIcon, NTag, NText, NEllipsis } from 'naive-ui'
 import { useDocumentStore } from '@/stores/documentStore'
-import { 
+import {
   AddOutline,
   SearchOutline,
   RefreshOutline,
@@ -508,7 +508,7 @@ const confirmDelete = async () => {
 const handleSubmit = async () => {
   try {
     await formRef.value?.validate()
-    
+
     if (editingDocument.value) {
       await documentStore.updateDocument(editingDocument.value.id, formData.value)
       message.success('문서가 수정되었습니다')
@@ -516,7 +516,7 @@ const handleSubmit = async () => {
       await documentStore.createDocument(formData.value)
       message.success('문서가 생성되었습니다')
     }
-    
+
     closeModal()
   } catch (error) {
     if (error?.message) {

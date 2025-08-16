@@ -4,16 +4,24 @@
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-3xl font-bold text-gray-900">채용공고 관리</h1>
-        <p class="text-gray-600 mt-1">크롤링한 채용공고를 관리하고 검색합니다</p>
+        <p class="text-gray-600 mt-1">사이트별로 채용공고를 크롤링하고 관리합니다</p>
       </div>
       <div class="flex gap-2">
-        <n-button type="primary" @click="handleStartCrawling" :loading="crawlingLoading">
+        <n-button type="primary" @click="openCrawlingSiteModal" :loading="crawlingLoading">
           <template #icon>
             <n-icon>
               <RefreshOutline />
             </n-icon>
           </template>
-          크롤링 시작
+          사이트별 크롤링
+        </n-button>
+        <n-button @click="handleStartAllCrawling" :loading="allCrawlingLoading">
+          <template #icon>
+            <n-icon>
+              <CloudDownloadOutline />
+            </n-icon>
+          </template>
+          전체 크롤링
         </n-button>
         <n-button @click="openAddModal">
           <template #icon>
@@ -26,7 +34,121 @@
       </div>
     </div>
 
-    <!-- Crawling Status -->
+    <!-- Site Selection Modal -->
+    <n-modal v-model:show="showCrawlingSiteModal" :mask-closable="false">
+      <n-card
+        style="width: 80vw; max-width: 800px"
+        title="크롤링할 사이트 선택"
+        :bordered="false"
+        size="huge"
+        role="dialog"
+        aria-modal="true"
+      >
+        <template #header-extra>
+          <n-button quaternary circle @click="closeCrawlingSiteModal">
+            <template #icon>
+              <n-icon><CloseOutline /></n-icon>
+            </template>
+          </n-button>
+        </template>
+
+        <div class="space-y-6">
+          <!-- Site Selection -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+              v-for="site in supportedSites"
+              :key="site.id"
+              class="border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md"
+              :class="selectedSites.includes(site.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'"
+              @click="toggleSite(site.id)"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <n-checkbox
+                    :checked="selectedSites.includes(site.id)"
+                    @update:checked.stop="(checked) => handleSiteCheckbox(site.id, checked)"
+                  />
+                  <div>
+                    <h3 class="font-semibold text-gray-900">{{ site.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ site.description }}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="text-lg font-bold text-blue-600">{{ site.totalJobs || 0 }}</p>
+                  <p class="text-xs text-gray-500">기존 공고</p>
+                </div>
+              </div>
+
+              <!-- Site Status -->
+              <div class="mt-3 flex justify-between items-center text-sm">
+                <span class="text-gray-600">
+                  최근 수집: {{ site.recentJobs || 0 }}개
+                </span>
+                <span class="text-gray-500">
+                  마지막 크롤링: {{ formatLastCrawled(site.lastCrawled) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Selection -->
+          <div class="border-t pt-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700">빠른 선택</span>
+              <div class="flex gap-2">
+                <n-button size="small" @click="selectAllSites">전체 선택</n-button>
+                <n-button size="small" @click="selectPopularSites">인기 사이트</n-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Crawling Options -->
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-900 mb-3">크롤링 옵션</h4>
+            <div class="space-y-3">
+              <n-checkbox v-model:checked="crawlOptions.includeDetails">
+                상세 정보 수집 (느리지만 더 많은 정보)
+              </n-checkbox>
+              <n-checkbox v-model:checked="crawlOptions.skipExisting">
+                기존 공고 중복 스킵
+              </n-checkbox>
+              <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">페이지 수:</span>
+                <n-input-number
+                  v-model:value="crawlOptions.maxPages"
+                  :min="1"
+                  :max="10"
+                  size="small"
+                  style="width: 80px;"
+                />
+                <span class="text-xs text-gray-500">사이트당</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-between">
+            <div class="text-sm text-gray-600">
+              선택된 사이트: <span class="font-semibold">{{ selectedSites.length }}개</span>
+            </div>
+            <div class="flex gap-2">
+              <n-button @click="closeCrawlingSiteModal">취소</n-button>
+              <n-button
+                type="primary"
+                @click="handleStartSiteCrawling"
+                :loading="crawlingLoading"
+                :disabled="selectedSites.length === 0"
+              >
+                크롤링 시작 ({{ selectedSites.length }}개 사이트)
+              </n-button>
+            </div>
+          </div>
+        </template>
+      </n-card>
+    </n-modal>
+
+    <!-- Crawling Status Card -->
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3">
@@ -38,9 +160,27 @@
             <p class="text-sm text-gray-600">마지막 업데이트: {{ lastUpdate }}</p>
           </div>
         </div>
-        <div class="text-right">
-          <p class="text-2xl font-bold text-blue-600">{{ crawlStatus.todayJobs }}</p>
-          <p class="text-sm text-gray-600">오늘 수집</p>
+        <div class="flex items-center space-x-6">
+          <div class="text-right">
+            <p class="text-2xl font-bold text-blue-600">{{ crawlStatus.todayJobs }}</p>
+            <p class="text-sm text-gray-600">오늘 수집</p>
+          </div>
+          <div class="text-right">
+            <p class="text-2xl font-bold text-green-600">{{ crawlStatus.totalJobs }}</p>
+            <p class="text-sm text-gray-600">총 공고</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Site Status Summary -->
+      <div class="mt-4 grid grid-cols-2 md:grid-cols-5 gap-2">
+        <div
+          v-for="site in siteStatusSummary"
+          :key="site.id"
+          class="bg-white rounded px-3 py-2 text-center"
+        >
+          <div class="text-sm font-medium text-gray-900">{{ site.name }}</div>
+          <div class="text-lg font-bold text-blue-600">{{ site.count }}</div>
         </div>
       </div>
     </div>
@@ -453,7 +593,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, h } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, h } from 'vue'
 import { useMessage, NButton, NIcon, NTag, NEllipsis } from 'naive-ui'
 import {
   AddOutline,
@@ -478,7 +618,7 @@ import { storeToRefs } from 'pinia'
 const message = useMessage()
 const jobStore = useJobManagementStore()
 
-// Use store state with reactivity
+// Store에서 가져오는 반응형 상태들 - 먼저 기본값으로 초기화
 const {
   // Data
   filteredJobs,
@@ -494,7 +634,7 @@ const {
   hasError,
   error,
 
-  // Search and filters
+  // Search and filters - 여기서 문제가 발생할 가능성이 높음
   searchQuery,
   aiSearchQuery,
   filterCategory,
@@ -521,7 +661,21 @@ const {
   getLocationCount
 } = storeToRefs(jobStore)
 
-// Destructure methods (these don't need storeToRefs)
+// 로컬 반응형 상태들 - 확실한 기본값으로 초기화
+const showCrawlingSiteModal = ref(false)
+const supportedSites = ref([])
+const selectedSites = ref([])
+const allCrawlingLoading = ref(false)
+const siteStatusSummary = ref([])
+
+// 크롤링 옵션 - 반응형으로 정의
+const crawlOptions = ref({
+  includeDetails: true,
+  skipExisting: true,
+  maxPages: 1
+})
+
+// Store 메소드들
 const {
   // Data fetching
   fetchJobs,
@@ -533,14 +687,14 @@ const {
   performSearch,
   performAISearch,
   applyFilters,
-  clearFilters,
+
+  getSupportedSites,
+  getSiteStatuses,
 
   // CRUD operations
   createJob,
   deleteJob,
-
-  // Crawling
-  startCrawling,
+  startSiteCrawling,
 
   // Modal management
   openDetailModal,
@@ -554,7 +708,7 @@ const {
   clearError
 } = jobStore
 
-// Local refs for form handling
+// Form ref
 const formRef = ref(null)
 
 // Form rules
@@ -574,99 +728,135 @@ const formRules = {
   ]
 }
 
-// Table configuration
+// 테이블 컬럼 정의 (여기서 문제가 발생할 수 있음)
 const columns = [
   {
-    title: 'ID',
-    key: 'id',
-    width: 60,
-    align: 'center'
-  },
-  {
-    title: '채용공고',
+    title: '제목',
     key: 'title',
-    minWidth: 250,
-    render: (row) => h('div', { class: 'space-y-1' }, [
-      h(NEllipsis, { style: { maxWidth: '300px' }, class: 'font-medium' }, {
-        default: () => row.title
-      }),
-      h('div', { class: 'text-xs text-gray-500' }, [
-        h('span', { class: 'font-medium' }, row.company),
-        row.location ? h('span', ` • ${row.location}`) : null
-      ])
-    ])
+    width: 300,
+    render(row) {
+      return h(NEllipsis, {
+        style: { maxWidth: '280px' },
+        tooltip: false
+      }, {
+        default: () => row.title,
+        tooltip: () => row.title
+      })
+    }
   },
   {
-    title: '직무/경력',
-    key: 'category',
+    title: '회사명',
+    key: 'company',
+    width: 200,
+    render(row) {
+      return h(NEllipsis, {
+        style: { maxWidth: '180px' },
+        tooltip: false
+      }, {
+        default: () => row.company,
+        tooltip: () => row.company
+      })
+    }
+  },
+  {
+    title: '지역',
+    key: 'location',
     width: 120,
-    render: (row) => h('div', { class: 'space-y-1' }, [
-      h(NTag, { size: 'small', type: 'info' }, {
-        default: () => row.jobCategory || '미분류'
-      }),
-      row.experienceLevel ? h('div', { class: 'text-xs text-gray-500' }, row.experienceLevel) : null
-    ])
+    render(row) {
+      return row.location || '-'
+    }
+  },
+  {
+    title: '직무',
+    key: 'jobCategory',
+    width: 120,
+    render(row) {
+      return row.jobCategory || '-'
+    }
   },
   {
     title: '출처',
     key: 'sourceSite',
     width: 100,
-    render: (row) => h(NTag, {
-      size: 'small',
-      type: getSourceColor(row.sourceSite)
-    }, {
-      default: () => row.sourceSite || '수동등록'
-    })
+    render(row) {
+      return h(NTag, {
+        size: 'small',
+        type: getSourceColor(row.sourceSite)
+      }, {
+        default: () => row.sourceSite
+      })
+    }
   },
   {
     title: '등록일',
     key: 'createdAt',
     width: 120,
-    render: (row) => formatDate(row.createdAt)
+    render(row) {
+      return formatDate(row.createdAt)
+    }
   },
   {
     title: '작업',
     key: 'actions',
-    width: 150,
-    align: 'center',
-    render: (row) => [
-      h(NButton, {
-        size: 'small',
-        quaternary: true,
-        type: 'info',
-        onClick: () => openDetailModal(row)
-      }, {
-        icon: () => h(NIcon, null, { default: () => h(EyeOutline) }),
-        default: () => '보기'
-      }),
-      h(NButton, {
-        size: 'small',
-        quaternary: true,
-        type: 'error',
-        onClick: () => handleDeleteJob(row),
-        style: { marginLeft: '8px' }
-      }, {
-        icon: () => h(NIcon, null, { default: () => h(TrashOutline) })
-      })
-    ]
+    width: 120,
+    render(row) {
+      return h('div', { class: 'flex gap-2' }, [
+        h(NButton, {
+          size: 'small',
+          onClick: () => openDetailModal(row)
+        }, {
+          icon: () => h(NIcon, null, { default: () => h(EyeOutline) }),
+          default: () => '보기'
+        }),
+        h(NButton, {
+          size: 'small',
+          type: 'error',
+          onClick: () => handleDeleteJob(row)
+        }, {
+          icon: () => h(NIcon, null, { default: () => h(TrashOutline) })
+        })
+      ])
+    }
   }
 ]
 
+// 페이지네이션 설정
 const paginationConfig = {
-  pageSize: 20,
+  pageSize: 10,
   showSizePicker: true,
-  pageSizes: [20, 50, 100],
+  pageSizes: [10, 20, 50],
   showQuickJumper: true,
   prefix: ({ itemCount }) => `총 ${itemCount}개`
 }
 
-// Event handlers
+// 이벤트 핸들러들
 const handleSearch = async () => {
-  await performSearch()
+  try {
+    await performSearch()
+  } catch (error) {
+    message.error('검색 중 오류가 발생했습니다')
+  }
+}
+
+const handleAISearch = async () => {
+  if (!aiSearchQuery.value?.trim()) {
+    message.warning('검색어를 입력해주세요')
+    return
+  }
+
+  try {
+    await performAISearch()
+  } catch (error) {
+    message.error('AI 검색 중 오류가 발생했습니다')
+  }
 }
 
 const handleFilter = async () => {
-  await applyFilters()
+  try {
+    await applyFilters()
+  } catch (error) {
+    message.error('필터 적용 중 오류가 발생했습니다')
+  }
 }
 
 const handleRefresh = async () => {
@@ -678,42 +868,10 @@ const handleRefresh = async () => {
   }
 }
 
-const handleAISearch = async () => {
-  if (!aiSearchQuery.value.trim()) return
-
-  try {
-    const result = await performAISearch()
-    if (result.success) {
-      message.success(result.message)
-    } else {
-      message.error(result.message)
-    }
-  } catch (error) {
-    message.error('AI 검색 중 오류가 발생했습니다')
-  }
-}
-
-const handleStartCrawling = async () => {
-  try {
-    const result = await startCrawling()
-    if (result.success) {
-      message.success(result.message)
-    } else {
-      message.error(result.message)
-    }
-  } catch (error) {
-    message.error('크롤링 시작 실패')
-  }
-}
-
 const handleDeleteJob = async (job) => {
   try {
-    const result = await deleteJob(job)
-    if (result.success) {
-      message.success(result.message)
-    } else {
-      message.error(result.message)
-    }
+    await deleteJob(job.id)
+    message.success('채용공고가 삭제되었습니다')
   } catch (error) {
     message.error('삭제 중 오류가 발생했습니다')
   }
@@ -722,34 +880,231 @@ const handleDeleteJob = async (job) => {
 const handleSubmit = async () => {
   try {
     await formRef.value?.validate()
-
-    const result = await createJob(formData.value)
-    if (result.success) {
-      message.success(result.message)
-      closeAddModal()
+    await createJob(formData.value)
+    message.success('채용공고가 추가되었습니다')
+    closeAddModal()
+  } catch (error) {
+    if (error?.message) {
+      message.error(error.message)
     } else {
-      message.error(result.message)
+      message.error('채용공고 추가 중 오류가 발생했습니다')
     }
-  } catch (validationError) {
-    // Validation failed, form will show errors
-    console.warn('Form validation failed:', validationError)
   }
 }
 
-// Watch for errors from store
-watch(() => hasError.value, (hasErr) => {
-  if (hasErr && error.value) {
-    message.error(error.value)
-    clearError()
+// 사이트별 크롤링 관련 핸들러들
+const handleStartSiteCrawling = async () => {
+  if (selectedSites.value.length === 0) {
+    message.warning('크롤링할 사이트를 선택해주세요')
+    return
+  }
+
+  try {
+    crawlingLoading.value = true
+    const result = await startSiteCrawling(selectedSites.value)
+
+    if (result.success) {
+      message.success(`${selectedSites.value.length}개 사이트 크롤링이 시작되었습니다`)
+      closeCrawlingSiteModal()
+
+      // 상태 업데이트
+      await Promise.all([
+        fetchJobs(),
+        fetchStats(),
+        fetchCrawlStatus()
+      ])
+    } else {
+      message.error(result.message || '크롤링 시작에 실패했습니다')
+    }
+  } catch (error) {
+    message.error('크롤링 요청 중 오류가 발생했습니다')
+    console.error('Site crawling error:', error)
+  } finally {
+    crawlingLoading.value = false
+  }
+}
+
+const handleStartAllCrawling = async () => {
+  try {
+    allCrawlingLoading.value = true
+    const result = await startAllCrawling()
+
+    if (result.success) {
+      message.success('전체 크롤링이 시작되었습니다')
+
+      // 상태 업데이트
+      await Promise.all([
+        fetchJobs(),
+        fetchStats(),
+        fetchCrawlStatus()
+      ])
+    } else {
+      message.error(result.message || '크롤링 시작에 실패했습니다')
+    }
+  } catch (error) {
+    message.error('크롤링 요청 중 오류가 발생했습니다')
+    console.error('All crawling error:', error)
+  } finally {
+    allCrawlingLoading.value = false
+  }
+}
+
+// API 함수들
+const fetchSupportedSites = async () => {
+  try {
+    const response = await getSupportedSites()
+    const data = await response
+
+    if (data.success && data.siteDetails) {
+      supportedSites.value = Object.values(data.siteDetails).map(site => ({
+        id: site.id,
+        name: site.name,
+        description: site.description,
+        enabled: site.enabled,
+        totalJobs: 0,
+        recentJobs: 0,
+        lastCrawled: null
+      }))
+
+      await fetchSiteStatuses()
+    }
+  } catch (error) {
+    console.error('지원 사이트 조회 실패:', error)
+    message.error('지원 사이트 정보를 불러올 수 없습니다')
+  }
+}
+
+const fetchSiteStatuses = async () => {
+  try {
+    const response = await getSiteStatuses()
+    const data = await response
+
+    if (data.success && data.sites) {
+      supportedSites.value = supportedSites.value.map(site => {
+        const statusInfo = data.sites.find(s => s.siteId === site.id)
+        if (statusInfo) {
+          return {
+            ...site,
+            totalJobs: statusInfo.totalJobs || 0,
+            recentJobs: statusInfo.recentJobs || 0,
+            lastCrawled: statusInfo.lastCrawled
+          }
+        }
+        return site
+      })
+
+      siteStatusSummary.value = supportedSites.value.map(site => ({
+        id: site.id,
+        name: site.name,
+        count: site.totalJobs
+      }))
+    }
+  } catch (error) {
+    console.error('사이트 상태 조회 실패:', error)
+  }
+}
+
+// Modal 관리
+const openCrawlingSiteModal = async () => {
+  showCrawlingSiteModal.value = true
+  await fetchSupportedSites()
+}
+
+const closeCrawlingSiteModal = () => {
+  showCrawlingSiteModal.value = false
+  selectedSites.value = []
+}
+
+// 사이트 선택 관리
+const toggleSite = (siteId) => {
+  const index = selectedSites.value.indexOf(siteId)
+  if (index > -1) {
+    selectedSites.value.splice(index, 1)
+  } else {
+    selectedSites.value.push(siteId)
+  }
+}
+
+const handleSiteCheckbox = (siteId, checked) => {
+  const index = selectedSites.value.indexOf(siteId)
+
+  if (checked && index === -1) {
+    // 배열 그대로 push
+    selectedSites.value.push(siteId)
+  } else if (!checked && index > -1) {
+    // 배열 그대로 splice
+    selectedSites.value.splice(index, 1)
+  }
+}
+
+const selectAllSites = () => {
+  if(selectedSites.value.length == supportedSites.value.length){
+    selectedSites.value = []
+  }else{
+    selectedSites.value = supportedSites.value.map(site => site.id)
+  }
+}
+
+const selectPopularSites = () => {
+  const popularSites = supportedSites.value
+    .sort((a, b) => (b.totalJobs || 0) - (a.totalJobs || 0))
+    .slice(0, 3)
+    .map(site => site.id)
+  selectedSites.value = popularSites
+}
+
+// 날짜 포맷팅
+const formatLastCrawled = (lastCrawled) => {
+  if (!lastCrawled || lastCrawled === '없음' || lastCrawled === '확인 불가') {
+    return '없음'
+  }
+
+  try {
+    const date = new Date(lastCrawled)
+    const now = new Date()
+    const diffMs = now - date
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffDays = Math.floor(diffHours / 24)
+
+    if (diffHours < 1) {
+      return '방금 전'
+    } else if (diffHours < 24) {
+      return `${diffHours}시간 전`
+    } else if (diffDays < 7) {
+      return `${diffDays}일 전`
+    } else {
+      return date.toLocaleDateString('ko-KR')
+    }
+  } catch (error) {
+    return '확인 불가'
+  }
+}
+
+// 컴포넌트 마운트시 초기화
+onMounted(async () => {
+  try {
+    // Store 초기화 확인
+    if (typeof searchQuery.value === 'undefined') {
+      console.warn('Store가 제대로 초기화되지 않았습니다')
+    }
+
+    // 초기 데이터 로드
+    await Promise.all([
+      fetchJobs(),
+      fetchStats(),
+      fetchCrawlStatus()
+    ])
+  } catch (error) {
+    console.error('초기화 오류:', error)
+    message.error('데이터 로드 중 오류가 발생했습니다')
   }
 })
 
-// Lifecycle
-onMounted(async () => {
-  try {
-    await refreshAll()
-  } catch (error) {
-    console.error('초기 데이터 로딩 실패:', error)
+// 에러 처리
+watch(hasError, (newError) => {
+  if (newError && error.value) {
+    message.error(error.value)
+    clearError()
   }
 })
 </script>

@@ -64,7 +64,7 @@ export const jobsAPI = {
     return response.data
   },
 
-  // Start crawling
+  // Start crawling (all sites)
   async startCrawling() {
     const response = await apiClient.post('/jobs/crawl')
     return response.data
@@ -73,6 +73,27 @@ export const jobsAPI = {
   // Stop crawling
   async stopCrawling() {
     const response = await apiClient.post('/jobs/crawl/stop')
+    return response.data
+  },
+
+  // Get supported crawling sites
+  async getSupportedSites() {
+    const response = await apiClient.get('/jobs/crawl/sites')
+    return response.data
+  },
+
+  // Get site crawling status
+  async getSiteStatuses() {
+    const response = await apiClient.get('/jobs/crawl/sites/status')
+    return response.data
+  },
+
+  // Start crawling specific sites
+  async startSiteCrawling(sites, options = {}) {
+    const response = await apiClient.post('/jobs/crawl/sites', {
+      sites,
+      options
+    })
     return response.data
   },
 

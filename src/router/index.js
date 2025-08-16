@@ -7,9 +7,18 @@ import JobManagement from '@/views/JobManagement.vue'
 const routes = [
   {
     path: '/',
+    name: 'JobManagement',
+    component: JobManagement,
+    meta: {
+      title: '채용정보 관리',
+      icon: 'document'
+    }
+  },
+  {
+    path: '/search',
     name: 'Search',
     component: SearchView,
-    meta: { 
+    meta: {
       title: '검색',
       icon: 'search'
     }
@@ -18,7 +27,7 @@ const routes = [
     path: '/documents',
     name: 'Documents',
     component: DocumentView,
-    meta: { 
+    meta: {
       title: '문서 관리',
       icon: 'document'
     }
@@ -27,20 +36,11 @@ const routes = [
     path: '/analytics',
     name: 'Analytics',
     component: AnalyticsView,
-    meta: { 
+    meta: {
       title: '분석',
       icon: 'analytics'
     }
   },
-  {
-    path: '/jobManagement',
-    name: 'JobManagement',
-    component: JobManagement,
-    meta: { 
-      title: '채용정보 관리',
-      icon: 'document'
-    }
-  },  
 ]
 
 const router = createRouter({
