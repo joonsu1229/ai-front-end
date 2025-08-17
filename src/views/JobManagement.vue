@@ -15,14 +15,14 @@
           </template>
           사이트별 크롤링
         </n-button>
-        <n-button @click="handleStartAllCrawling" :loading="allCrawlingLoading">
+        <!-- <n-button @click="handleStartAllCrawling" :loading="allCrawlingLoading">
           <template #icon>
             <n-icon>
               <CloudDownloadOutline />
             </n-icon>
           </template>
           전체 크롤링
-        </n-button>
+        </n-button> -->
         <n-button @click="openAddModal">
           <template #icon>
             <n-icon>
