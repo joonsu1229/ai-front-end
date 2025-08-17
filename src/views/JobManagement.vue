@@ -807,11 +807,11 @@ const columns = [
     }
   },
   {
-    title: '등록일',
+    title: '마감일',
     key: 'createdAt',
     width: 120,
     render(row) {
-      return formatDate(row.createdAt)
+      return formatDate(row.deadline)
     }
   },
   {
