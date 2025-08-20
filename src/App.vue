@@ -11,7 +11,7 @@
               <div class="flex items-center">
                 <div class="flex-shrink-0">
                   <h1 class="text-2xl font-bold text-gray-900">
-                    <span class="text-primary-600">Hybrid</span>Search
+                    <span class="text-primary-600">JSAI</span>
                   </h1>
                 </div>
               </div>
