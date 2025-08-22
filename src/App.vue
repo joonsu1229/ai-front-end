@@ -11,7 +11,7 @@
               <div class="flex items-center">
                 <div class="flex-shrink-0">
                   <h1 class="text-2xl font-bold text-gray-900">
-                    <img src="/jsai_logo.png" alt="JSAI" style="width: 80px; height: 70px; vertical-align: middle;">
+                    <img src="/jsai_logo.png" alt="JSAI" style="width: 100px; height: 80px; vertical-align: middle;">
                   </h1>
                 </div>
               </div>
