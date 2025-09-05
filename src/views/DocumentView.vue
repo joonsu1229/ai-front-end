@@ -354,12 +354,6 @@ const categorySelectOptions = [
 // Table configuration
 const columns = [
   {
-    title: 'ID',
-    key: 'id',
-    width: 60,
-    align: 'center'
-  },
-  {
     title: '제목',
     key: 'title',
     minWidth: 200,
@@ -393,7 +387,7 @@ const columns = [
   {
     title: '작업',
     key: 'actions',
-    width: 180,
+    width: 300,
     align: 'center',
     render: (row) => [
       h(NButton, {
